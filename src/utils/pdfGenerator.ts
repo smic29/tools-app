@@ -18,6 +18,11 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   // Set font
   pdf.setFont('helvetica');
   
+  // Add border to the page
+  pdf.setDrawColor(0);
+  pdf.setLineWidth(0.5);
+  pdf.rect(10, 10, 190, 277); // Outer border
+  
   // Add company information
   pdf.setFontSize(16);
   pdf.text(formData.companyName, 20, 20);
@@ -45,68 +50,122 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
     pdf.text(`Due Date: ${formData.dueDate}`, 150, 37, { align: 'right' });
   }
   
+  // Add horizontal line
+  pdf.setLineWidth(0.2);
+  pdf.line(20, 45, 190, 45);
+  
+  // Create a box for client and document details
+  pdf.setDrawColor(200, 200, 200);
+  pdf.setLineWidth(0.2);
+  pdf.rect(20, 50, 170, 25);
+  
+  // Add vertical line to separate client and document details
+  pdf.line(105, 50, 105, 75);
+  
   // Add client information
   pdf.setFontSize(12);
-  pdf.text('Bill To:', 20, 55);
+  pdf.text('Bill To:', 25, 58);
   
   pdf.setFontSize(10);
-  pdf.text(formData.clientName, 20, 62);
-  pdf.text(formData.clientAddress, 20, 67);
+  pdf.text(formData.clientName, 25, 65);
+  pdf.text(formData.clientAddress, 25, 70);
+  
+  // Add document details on the right side
+  pdf.setFontSize(12);
+  pdf.text('Document Details:', 110, 58);
+  
+  pdf.setFontSize(10);
+  pdf.text(`Type: ${documentTitle}`, 110, 65);
+  pdf.text(`Number: ${formData.documentNumber}`, 110, 70);
+  
+  // Add horizontal line
+  pdf.line(20, 80, 190, 80);
   
   // Add items table
   pdf.setFontSize(12);
-  pdf.text('Items', 20, 85);
+  pdf.text('Items', 20, 90);
   
-  // Table headers
+  // Table headers with background
+  pdf.setFillColor(240, 240, 240);
+  pdf.rect(20, 93, 170, 7, 'F');
+  
   pdf.setFontSize(10);
-  pdf.text('Description', 20, 92);
-  pdf.text('Quantity', 80, 92);
-  pdf.text('Unit Price', 100, 92);
-  pdf.text('Currency', 120, 92);
-  pdf.text('Total (PHP)', 150, 92);
+  pdf.text('Description', 25, 97);
+  pdf.text('Quantity', 85, 97);
+  pdf.text('Unit Price', 105, 97);
+  pdf.text('Currency', 125, 97);
+  pdf.text('Total (PHP)', 150, 97);
   
-  // Table rows
-  let yPos = 99;
-  formData.items.forEach(item => {
-    pdf.text(item.description, 20, yPos);
-    pdf.text(item.quantity.toString(), 80, yPos);
-    pdf.text(item.price.toFixed(2), 100, yPos);
-    pdf.text(item.currency, 120, yPos);
+  // Table rows with alternating background
+  let yPos = 104;
+  formData.items.forEach((item, index) => {
+    if (index % 2 === 0) {
+      pdf.setFillColor(248, 248, 248);
+      pdf.rect(20, yPos - 4, 170, 7, 'F');
+    }
+    
+    pdf.text(item.description, 25, yPos);
+    pdf.text(item.quantity.toString(), 85, yPos);
+    pdf.text(item.price.toFixed(2), 105, yPos);
+    pdf.text(item.currency, 125, yPos);
     pdf.text(item.total.toFixed(2), 150, yPos);
     yPos += 7;
   });
   
+  // Add horizontal line for total
+  pdf.setLineWidth(0.2);
+  pdf.line(20, yPos - 2, 190, yPos - 2);
+  
   // Calculate total
   const total = formData.items.reduce((sum, item) => sum + (item.total || 0), 0);
   
-  // Total
+  // Total with background and amount in words on the same line
+  pdf.setFillColor(240, 240, 240);
+  pdf.rect(20, yPos, 170, 10, 'F');
+  
   pdf.setFontSize(10);
   pdf.text('Total (PHP):', 120, yPos + 5);
+  
+  // Use a different approach for the Peso symbol
+  // Instead of using the Unicode character, we'll use a custom approach
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('P', 145, yPos + 5);
+  pdf.setFont('helvetica', 'normal');
+  pdf.text('HP', 147, yPos + 5);
+  
   pdf.setFont('courier'); // Use monospace font for better alignment
-  pdf.text(`₱ ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 150, yPos + 5);
+  pdf.text(total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 155, yPos + 5);
   pdf.setFont('helvetica'); // Reset to default font
   
-  // Amount in words
+  // Amount in words on the same line
   pdf.setFontSize(9);
-  pdf.text('Amount in words:', 20, yPos + 12);
-  pdf.setFontSize(8);
   const amountInWords = pesoToWords(total);
-  const wordsLines = pdf.splitTextToSize(amountInWords, 170);
-  pdf.text(wordsLines, 20, yPos + 18);
+  const wordsLines = pdf.splitTextToSize(amountInWords, 100);
+  pdf.text(wordsLines, 25, yPos + 5);
   
-  // Notes
+  // Notes with border
   if (formData.notes) {
+    const notesY = yPos + 15;
+    pdf.setDrawColor(200, 200, 200);
+    pdf.setLineWidth(0.2);
+    pdf.rect(20, notesY, 170, 15);
+    
     pdf.setFontSize(12);
-    pdf.text('Notes:', 20, yPos + 12 + (wordsLines.length * 5));
+    pdf.text('Notes:', 25, notesY + 4);
     
     pdf.setFontSize(10);
-    const notesLines = pdf.splitTextToSize(formData.notes, 170);
-    pdf.text(notesLines, 20, yPos + 18 + (wordsLines.length * 5));
+    const notesLines = pdf.splitTextToSize(formData.notes, 160);
+    pdf.text(notesLines, 25, notesY + 10);
   }
   
-  // Footer
+  // Footer with border
+  const footerY = 260;
+  pdf.setDrawColor(200, 200, 200);
+  pdf.setLineWidth(0.2);
+  pdf.rect(20, footerY, 170, 15);
+  
   pdf.setFontSize(10);
-  pdf.text('Thank you for your business!', 105, 270, { align: 'center' });
+  pdf.text('Thank you for your business!', 105, footerY + 8, { align: 'center' });
   
   // Save the PDF
   const fileName = `${formData.documentType}-${formData.documentNumber || 'document'}.pdf`;
