@@ -1,16 +1,80 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
+import { useState, useRef } from "react";
+import { toast } from "sonner";
+import { usePDFForm } from "@/hooks/usePDFForm";
+import { generatePDF } from "@/utils/pdfGenerator";
+import { ClientInfoSection } from "@/components/pdf-generator/ClientInfoSection";
+import { CargoDetailsSection } from "@/components/pdf-generator/CargoDetailsSection";
+import { ItemsSection } from "@/components/pdf-generator/ItemsSection";
+import { PreviewSection } from "@/components/pdf-generator/PreviewSection";
+import { SettingsSidebar } from "@/components/pdf-generator/SettingsSidebar";
 
 export default function PDFGenerator() {
+  const [showPreview, setShowPreview] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
+  
+  const {
+    formData,
+    errors,
+    isGenerating,
+    setIsGenerating,
+    handleInputChange,
+    handleItemChange,
+    updateDefaultExchangeRate,
+    addItem,
+    removeItem,
+    calculateTotal,
+    clearForm,
+    validateForm,
+    getAmountInWords,
+    handleCompanyKeyInput,
+  } = usePDFForm();
+
+  const handlePreview = () => {
+    if (validateForm()) {
+      setShowPreview(true);
+    } else {
+      toast.error("Please fix the errors in the form");
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleBack = () => {
+    setShowPreview(false);
+  };
+
+  const handleGeneratePDF = async () => {
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form");
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      await generatePDF(formData);
+      toast.success("PDF generated successfully!");
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background print:w-full print:p-0">
       {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-6">
+      <header className="border-b print:hidden">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-foreground">PDF Generator</h1>
@@ -28,127 +92,101 @@ export default function PDFGenerator() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <Card className="max-w-3xl mx-auto">
-          <CardHeader>
-            <CardTitle>Billing/Quotation Form</CardTitle>
-            <CardDescription>
-              Fill in the details below to generate your PDF document
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form className="space-y-6">
-              {/* Company Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Company Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="company-name">Company Name</Label>
-                    <Input id="company-name" placeholder="Enter company name" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company-address">Company Address</Label>
-                    <Input id="company-address" placeholder="Enter company address" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company-phone">Phone Number</Label>
-                    <Input id="company-phone" placeholder="Enter phone number" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company-email">Email</Label>
-                    <Input id="company-email" type="email" placeholder="Enter email address" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Client Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Client Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="client-name">Client Name</Label>
-                    <Input id="client-name" placeholder="Enter client name" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="client-address">Client Address</Label>
-                    <Input id="client-address" placeholder="Enter client address" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Document Details */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Document Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="document-type">Document Type</Label>
-                    <select id="document-type" className="w-full rounded-md border border-input bg-background px-3 py-2">
-                      <option value="invoice">Invoice</option>
-                      <option value="quotation">Quotation</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="document-number">Document Number</Label>
-                    <Input id="document-number" placeholder="Enter document number" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="document-date">Date</Label>
-                    <Input id="document-date" type="date" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="due-date">Due Date</Label>
-                    <Input id="due-date" type="date" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Items */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Items</h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="item-description">Description</Label>
-                      <Input id="item-description" placeholder="Item description" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="item-quantity">Quantity</Label>
-                      <Input id="item-quantity" type="number" placeholder="Qty" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="item-price">Unit Price</Label>
-                      <Input id="item-price" type="number" placeholder="Price" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="item-total">Total</Label>
-                      <Input id="item-total" type="number" placeholder="Total" disabled />
-                    </div>
-                  </div>
-                  <Button type="button" variant="outline" className="w-full">
-                    Add Another Item
+      <main className={`container mx-auto px-4 py-8 print:p-0 print:m-0 print:w-full transition-all duration-300 ${!showPreview && sidebarOpen ? 'pr-96' : !showPreview ? 'pr-12' : ''}`}>
+        {!showPreview ? (
+          <Card className="max-w-5xl mx-auto">
+            <CardHeader>
+              <CardTitle>Document Form</CardTitle>
+              <CardDescription>
+                Fill in the details below to generate your PDF document
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                {/* Action Buttons */}
+                <div className="flex justify-between gap-2">
+                  <Button type="button" variant="outline" onClick={clearForm}>
+                    Clear Form
                   </Button>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={handlePreview}>
+                      Preview
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={handleGeneratePDF}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? "Generating..." : "Generate PDF"}
+                    </Button>
+                  </div>
                 </div>
-              </div>
+                {/* Client Information */}
+                <ClientInfoSection 
+                  formData={formData}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                />
 
-              {/* Notes */}
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea id="notes" placeholder="Enter any additional notes" rows={4} />
-              </div>
+                {/* Cargo Details */}
+                <CargoDetailsSection 
+                  formData={formData}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                />
 
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <Button type="submit" className="w-full md:w-auto">
-                  Generate PDF
-                </Button>
+                {/* Items */}
+                <ItemsSection 
+                  formData={formData}
+                  errors={errors}
+                  handleItemChange={handleItemChange}
+                  addItem={addItem}
+                  removeItem={removeItem}
+                  calculateTotal={calculateTotal}
+                />
+              </form>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="max-w-6xl mx-auto print:w-full print:border-none print:shadow-none print:p-0">
+            <CardHeader className="print:hidden">
+              <CardTitle>Preview</CardTitle>
+              <CardDescription>
+                Review your document before generating the PDF
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="print:w-full print:shadow-none print:p-0">
+              <div ref={previewRef} className="print:w-full print:h-screen print:border-none print:shadow-none print:p-0">
+                <PreviewSection 
+                  formData={formData}
+                  calculateTotal={calculateTotal}
+                  getAmountInWords={getAmountInWords}
+                  handleBack={handleBack}
+                  handlePrint={handlePrint}
+                  handleGeneratePDF={handleGeneratePDF}
+                  isGenerating={isGenerating}
+                />
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </main>
 
+      {/* Settings Sidebar */}
+      {!showPreview && (
+        <SettingsSidebar 
+          formData={formData}
+          errors={errors}
+          handleInputChange={handleInputChange}
+          updateDefaultExchangeRate={updateDefaultExchangeRate}
+          isOpen={sidebarOpen}
+          setIsOpen={setSidebarOpen}
+          onCompanyKeyInput={handleCompanyKeyInput}
+        />
+      )}
+
       {/* Footer */}
-      <footer className="border-t mt-auto">
+      <footer className="border-t mt-auto print:hidden">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-sm text-muted-foreground">
             © 2025 Tools App | Created by{" "}
