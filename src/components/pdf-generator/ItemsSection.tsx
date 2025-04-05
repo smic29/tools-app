@@ -21,7 +21,10 @@ export function ItemsSection({
 }: ItemsSectionProps) {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Items</h3>
+      <h3 className="text-lg font-medium">
+        Items
+        <span className="text-sm text-muted-foreground ms-1">($1 = ₱ {formData.defaultExchangeRate})</span>
+      </h3>
       {errors.items && (
         <p className="text-sm text-red-500">{errors.items}</p>
       )}

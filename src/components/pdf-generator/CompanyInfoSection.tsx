@@ -1,68 +1,98 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PDFFormData } from "@/types/pdf-generator";
+import React from "react";
+import { Button } from "../ui/button";
+import { Building2, LockOpenIcon, Mail, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
 
 interface CompanyInfoSectionProps {
   formData: PDFFormData;
-  errors: Record<string, string>;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  onCompanyKeyInput: (data: Partial<PDFFormData>) => void;
 }
 
-export function CompanyInfoSection({ formData, errors, handleInputChange }: CompanyInfoSectionProps) {
+export function CompanyInfoSection({ 
+  formData, 
+  onCompanyKeyInput: handleCompanyKeyInput
+ }: CompanyInfoSectionProps) {
+  const [companyKeyInput, setCompanyKeyInput] = React.useState("");
+  const [invalidKey, setInvalidKey] = React.useState(false);
+  
+  const defaultInputClass = "w-full mt-2 p-2 border rounded-md";
+  const clientDatabase: Record<string, Partial<PDFFormData>> = {
+    "RBSIBULO": { 
+      companyName: "RBSibulo Logistics Services",
+      companyAddress: "#8 road 5C cor. 9th St., UPS V, Brgy. San Isidro, Parañaque 1700",
+      companyPhone: "0912 980 1532",
+      companyEmail: "rogemae.sibulo@gmail.com",
+      companyLogo: "/companyLogos/rbsibulo.png",
+    },
+    "TEST": {
+      companyName: "Test Company",
+      companyAddress: "123 Main St, Anytown, USA",
+      companyPhone: "123-456-7890",
+      companyEmail: "w0D3o@example.com",
+    }
+  };
+
+  const handleUnlockClick = () => {
+    const companyData = clientDatabase[companyKeyInput] || clientDatabase.TEST;
+
+    handleCompanyKeyInput(companyData);
+
+    setInvalidKey(companyKeyInput !== "" && !clientDatabase[companyKeyInput]);
+  }
+
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Company Information</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="companyName">Company Name *</Label>
-          <Input 
-            id="companyName" 
-            name="companyName"
-            value={formData.companyName}
-            onChange={handleInputChange}
-            placeholder="Enter company name" 
-            className={errors.companyName ? "border-red-500" : ""}
-          />
-          {errors.companyName && (
-            <p className="text-sm text-red-500">{errors.companyName}</p>
+      {formData.companyName ? (
+        <div className="flex flex-col space-y-1 text-sm">
+          {formData.companyLogo && (
+            <div className="flex justify-center mt-4">
+              <Image 
+                src={formData.companyLogo} 
+                alt={`${formData.companyName} Logo`} 
+                width={128} // Adjust as needed
+                height={128} // Adjust as needed
+                className="object-contain"
+              />
+            </div>
           )}
+        <div className="flex items-center gap-2">
+          <Building2 className="w-4 h-4 text-gray-500" />
+          <span className="font-semibold">{formData.companyName}</span>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="companyAddress">Company Address *</Label>
-          <Input 
-            id="companyAddress" 
-            name="companyAddress"
-            value={formData.companyAddress}
-            onChange={handleInputChange}
-            placeholder="Enter company address" 
-            className={errors.companyAddress ? "border-red-500" : ""}
-          />
-          {errors.companyAddress && (
-            <p className="text-sm text-red-500">{errors.companyAddress}</p>
-          )}
+        <div className="flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-gray-500" />
+          <span>{formData.companyAddress}</span>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="companyPhone">Phone Number</Label>
-          <Input 
-            id="companyPhone" 
-            name="companyPhone"
-            value={formData.companyPhone}
-            onChange={handleInputChange}
-            placeholder="Enter phone number" 
-          />
+        <div className="flex items-center gap-2">
+          <Phone className="w-4 h-4 text-gray-500" />
+          <span>{formData.companyPhone}</span>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="companyEmail">Email</Label>
-          <Input 
-            id="companyEmail" 
-            name="companyEmail"
-            type="email"
-            value={formData.companyEmail}
-            onChange={handleInputChange}
-            placeholder="Enter email address" 
-          />
+        <div className="flex items-center gap-2">
+          <Mail className="w-4 h-4 text-gray-500" />
+          <span>{formData.companyEmail}</span>
         </div>
       </div>
+      ) : (
+        <div className="flex gap-2 items-end">
+          <div className="flex-1">
+            <Label htmlFor="companyKey">Company Key</Label>
+            <Input 
+              id="companyKey" 
+              name="companyKey"
+              value={companyKeyInput}
+              onChange={(e) => setCompanyKeyInput(e.target.value)}
+              placeholder="Enter company key" 
+              className={invalidKey ? `${defaultInputClass} border-red-500` : defaultInputClass}
+            />
+          </div>
+          <Button type="button" onClick={handleUnlockClick}>
+            <LockOpenIcon className="w-5 h-5" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 } 

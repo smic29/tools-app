@@ -7,16 +7,15 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { usePDFForm } from "@/hooks/usePDFForm";
 import { generatePDF } from "@/utils/pdfGenerator";
-import { CompanyInfoSection } from "@/components/pdf-generator/CompanyInfoSection";
 import { ClientInfoSection } from "@/components/pdf-generator/ClientInfoSection";
-import { DocumentDetailsSection } from "@/components/pdf-generator/DocumentDetailsSection";
-import { ExchangeRateSection } from "@/components/pdf-generator/ExchangeRateSection";
+import { CargoDetailsSection } from "@/components/pdf-generator/CargoDetailsSection";
 import { ItemsSection } from "@/components/pdf-generator/ItemsSection";
-import { NotesSection } from "@/components/pdf-generator/NotesSection";
 import { PreviewSection } from "@/components/pdf-generator/PreviewSection";
+import { SettingsSidebar } from "@/components/pdf-generator/SettingsSidebar";
 
 export default function PDFGenerator() {
   const [showPreview, setShowPreview] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   
   const {
@@ -32,7 +31,8 @@ export default function PDFGenerator() {
     calculateTotal,
     clearForm,
     validateForm,
-    getAmountInWords
+    getAmountInWords,
+    handleCompanyKeyInput,
   } = usePDFForm();
 
   const handlePreview = () => {
@@ -74,7 +74,7 @@ export default function PDFGenerator() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-foreground">PDF Generator</h1>
@@ -92,60 +92,17 @@ export default function PDFGenerator() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className={`container mx-auto px-4 py-8 transition-all duration-300 ${!showPreview && sidebarOpen ? 'pr-96' : !showPreview ? 'pr-12' : ''}`}>
         {!showPreview ? (
           <Card className="max-w-5xl mx-auto">
             <CardHeader>
-              <CardTitle>Billing/Quotation Form</CardTitle>
+              <CardTitle>Document Form</CardTitle>
               <CardDescription>
                 Fill in the details below to generate your PDF document
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                {/* Company Information */}
-                <CompanyInfoSection 
-                  formData={formData}
-                  errors={errors}
-                  handleInputChange={handleInputChange}
-                />
-
-                {/* Client Information */}
-                <ClientInfoSection 
-                  formData={formData}
-                  errors={errors}
-                  handleInputChange={handleInputChange}
-                />
-
-                {/* Document Details */}
-                <DocumentDetailsSection 
-                  formData={formData}
-                  errors={errors}
-                  handleInputChange={handleInputChange}
-                />
-
-                {/* Exchange Rate */}
-                <ExchangeRateSection 
-                  formData={formData}
-                  updateDefaultExchangeRate={updateDefaultExchangeRate}
-                />
-
-                {/* Items */}
-                <ItemsSection 
-                  formData={formData}
-                  errors={errors}
-                  handleItemChange={handleItemChange}
-                  addItem={addItem}
-                  removeItem={removeItem}
-                  calculateTotal={calculateTotal}
-                />
-
-                {/* Notes */}
-                <NotesSection 
-                  formData={formData}
-                  handleInputChange={handleInputChange}
-                />
-
                 {/* Action Buttons */}
                 <div className="flex justify-between gap-2">
                   <Button type="button" variant="outline" onClick={clearForm}>
@@ -164,6 +121,29 @@ export default function PDFGenerator() {
                     </Button>
                   </div>
                 </div>
+                {/* Client Information */}
+                <ClientInfoSection 
+                  formData={formData}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                />
+
+                {/* Cargo Details */}
+                <CargoDetailsSection 
+                  formData={formData}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                />
+
+                {/* Items */}
+                <ItemsSection 
+                  formData={formData}
+                  errors={errors}
+                  handleItemChange={handleItemChange}
+                  addItem={addItem}
+                  removeItem={removeItem}
+                  calculateTotal={calculateTotal}
+                />
               </form>
             </CardContent>
           </Card>
@@ -191,6 +171,19 @@ export default function PDFGenerator() {
           </Card>
         )}
       </main>
+
+      {/* Settings Sidebar */}
+      {!showPreview && (
+        <SettingsSidebar 
+          formData={formData}
+          errors={errors}
+          handleInputChange={handleInputChange}
+          updateDefaultExchangeRate={updateDefaultExchangeRate}
+          isOpen={sidebarOpen}
+          setIsOpen={setSidebarOpen}
+          onCompanyKeyInput={handleCompanyKeyInput}
+        />
+      )}
 
       {/* Footer */}
       <footer className="border-t mt-auto">

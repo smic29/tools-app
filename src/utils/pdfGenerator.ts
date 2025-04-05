@@ -36,8 +36,8 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   // Add document type and details
   pdf.setFontSize(14);
   let documentTitle = "QUOTATION";
-  if (formData.documentType === "billing_statement") {
-    documentTitle = "BILLING STATEMENT";
+  if (formData.documentType === "invoice") {
+    documentTitle = "INVOICE";
   } else if (formData.documentType === "statement_of_account") {
     documentTitle = "STATEMENT OF ACCOUNT";
   }
@@ -46,7 +46,7 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   pdf.setFontSize(10);
   pdf.text(`No: ${formData.documentNumber}`, 150, 27, { align: 'right' });
   pdf.text(`Date: ${formData.documentDate}`, 150, 32, { align: 'right' });
-  if (formData.documentType === "billing_statement" && formData.dueDate) {
+  if (formData.documentType === "invoice" && formData.dueDate) {
     pdf.text(`Due Date: ${formData.dueDate}`, 150, 37, { align: 'right' });
   }
   
@@ -81,23 +81,84 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   // Add horizontal line
   pdf.line(20, 80, 190, 80);
   
+  // Variable to track vertical position
+  let yPos = 90;
+  
+  // Add cargo details if available
+  if (formData.portOfDischarge || formData.portOfLoading || formData.vesselVoyage || 
+      formData.billOfLadingNo || formData.eta || formData.jobDescription) {
+    pdf.setFontSize(12);
+    pdf.text('Cargo Details', 20, yPos);
+    
+    // Table headers with background
+    pdf.setFillColor(240, 240, 240);
+    pdf.rect(20, yPos + 3, 170, 7, 'F');
+    
+    pdf.setFontSize(10);
+    pdf.text('Port of Discharge', 25, yPos + 7);
+    pdf.text('Port of Loading', 85, yPos + 7);
+    pdf.text('Vessel/Voyage', 125, yPos + 7);
+    
+    // Table row with alternating background
+    pdf.setFillColor(248, 248, 248);
+    pdf.rect(20, yPos + 10, 170, 7, 'F');
+    
+    pdf.text(formData.portOfDischarge || '-', 25, yPos + 14);
+    pdf.text(formData.portOfLoading || '-', 85, yPos + 14);
+    pdf.text(formData.vesselVoyage || '-', 125, yPos + 14);
+    
+    // Second row
+    pdf.setFillColor(240, 240, 240);
+    pdf.rect(20, yPos + 17, 170, 7, 'F');
+    
+    pdf.text('Bill of Lading No.', 25, yPos + 21);
+    pdf.text('ETA', 85, yPos + 21);
+    
+    // Table row with alternating background
+    pdf.setFillColor(248, 248, 248);
+    pdf.rect(20, yPos + 24, 170, 7, 'F');
+    
+    pdf.text(formData.billOfLadingNo || '-', 25, yPos + 28);
+    pdf.text(formData.eta || '-', 85, yPos + 28);
+    
+    // Job Description
+    if (formData.jobDescription) {
+      yPos += 40;
+      pdf.setFontSize(12);
+      pdf.text('Job Description', 20, yPos);
+      
+      pdf.setFontSize(10);
+      const jobDescriptionLines = pdf.splitTextToSize(formData.jobDescription, 170);
+      pdf.text(jobDescriptionLines, 20, yPos + 7);
+      
+      // Add horizontal line after job description
+      pdf.line(20, yPos + 7 + (jobDescriptionLines.length * 5), 190, yPos + 7 + (jobDescriptionLines.length * 5));
+      
+      // Adjust the starting position for the items table
+      yPos += 7 + (jobDescriptionLines.length * 5) + 10;
+    } else {
+      // If no job description, start the items table at a fixed position
+      yPos += 40;
+    }
+  }
+  
   // Add items table
   pdf.setFontSize(12);
-  pdf.text('Items', 20, 90);
+  pdf.text('Items', 20, yPos);
   
   // Table headers with background
   pdf.setFillColor(240, 240, 240);
-  pdf.rect(20, 93, 170, 7, 'F');
+  pdf.rect(20, yPos + 3, 170, 7, 'F');
   
   pdf.setFontSize(10);
-  pdf.text('Description', 25, 97);
-  pdf.text('Quantity', 85, 97);
-  pdf.text('Unit Price', 105, 97);
-  pdf.text('Currency', 125, 97);
-  pdf.text('Total (PHP)', 150, 97);
+  pdf.text('Description', 25, yPos + 7);
+  pdf.text('Quantity', 85, yPos + 7);
+  pdf.text('Unit Price', 105, yPos + 7);
+  pdf.text('Currency', 125, yPos + 7);
+  pdf.text('Total (PHP)', 150, yPos + 7);
   
   // Table rows with alternating background
-  let yPos = 104;
+  yPos += 14;
   formData.items.forEach((item, index) => {
     if (index % 2 === 0) {
       pdf.setFillColor(248, 248, 248);
@@ -142,21 +203,6 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   const amountInWords = pesoToWords(total);
   const wordsLines = pdf.splitTextToSize(amountInWords, 100);
   pdf.text(wordsLines, 25, yPos + 5);
-  
-  // Notes with border
-  if (formData.notes) {
-    const notesY = yPos + 15;
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.2);
-    pdf.rect(20, notesY, 170, 15);
-    
-    pdf.setFontSize(12);
-    pdf.text('Notes:', 25, notesY + 4);
-    
-    pdf.setFontSize(10);
-    const notesLines = pdf.splitTextToSize(formData.notes, 160);
-    pdf.text(notesLines, 25, notesY + 10);
-  }
   
   // Footer with border
   const footerY = 260;

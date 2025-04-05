@@ -26,6 +26,9 @@ export function DocumentDetailsSection({ formData, errors, handleInputChange }: 
               <option key={type.value} value={type.value}>{type.label}</option>
             ))}
           </select>
+          {errors.documentType && (
+            <p className="text-sm text-red-500">{errors.documentType}</p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="documentNumber">Document Number *</Label>
@@ -55,22 +58,6 @@ export function DocumentDetailsSection({ formData, errors, handleInputChange }: 
           />
           {errors.documentDate && (
             <p className="text-sm text-red-500">{errors.documentDate}</p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="dueDate">
-            Due Date {formData.documentType === "billing_statement" && "*"}
-          </Label>
-          <Input 
-            id="dueDate" 
-            name="dueDate"
-            type="date"
-            value={formData.dueDate}
-            onChange={handleInputChange}
-            className={errors.dueDate ? "border-red-500" : ""}
-          />
-          {errors.dueDate && (
-            <p className="text-sm text-red-500">{errors.dueDate}</p>
           )}
         </div>
       </div>
