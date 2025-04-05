@@ -71,9 +71,9 @@ export default function PDFGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background print:w-full print:p-0">
       {/* Header */}
-      <header className="border-b">
+      <header className="border-b print:hidden">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -92,7 +92,7 @@ export default function PDFGenerator() {
       </header>
 
       {/* Main Content */}
-      <main className={`container mx-auto px-4 py-8 transition-all duration-300 ${!showPreview && sidebarOpen ? 'pr-96' : !showPreview ? 'pr-12' : ''}`}>
+      <main className={`container mx-auto px-4 py-8 print:p-0 print:m-0 print:w-full transition-all duration-300 ${!showPreview && sidebarOpen ? 'pr-96' : !showPreview ? 'pr-12' : ''}`}>
         {!showPreview ? (
           <Card className="max-w-5xl mx-auto">
             <CardHeader>
@@ -148,15 +148,15 @@ export default function PDFGenerator() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="max-w-6xl mx-auto">
-            <CardHeader>
+          <Card className="max-w-6xl mx-auto print:w-full print:border-none print:shadow-none print:p-0">
+            <CardHeader className="print:hidden">
               <CardTitle>Preview</CardTitle>
               <CardDescription>
                 Review your document before generating the PDF
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div ref={previewRef}>
+            <CardContent className="print:w-full print:shadow-none print:p-0">
+              <div ref={previewRef} className="print:w-full print:h-screen print:border-none print:shadow-none print:p-0">
                 <PreviewSection 
                   formData={formData}
                   calculateTotal={calculateTotal}
@@ -186,7 +186,7 @@ export default function PDFGenerator() {
       )}
 
       {/* Footer */}
-      <footer className="border-t mt-auto">
+      <footer className="border-t mt-auto print:hidden">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-sm text-muted-foreground">
             © 2025 Tools App | Created by{" "}

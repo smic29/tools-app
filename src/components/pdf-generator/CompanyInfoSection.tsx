@@ -26,6 +26,8 @@ export function CompanyInfoSection({
       companyPhone: "0912 980 1532",
       companyEmail: "rogemae.sibulo@gmail.com",
       companyLogo: "/companyLogos/rbsibulo.png",
+      companyisNonVat: true,
+      companyTin: "501-594-979-000"
     },
     "TEST": {
       companyName: "Test Company",
