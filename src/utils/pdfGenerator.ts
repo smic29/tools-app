@@ -150,6 +150,12 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   // Add items table
   pdf.setFontSize(12);
   pdf.text('Items', 20, yPos);
+
+  // Add Exchange Rate Reference
+  pdf.setFontSize(8);
+  pdf.text('ER: ', 155, yPos);
+  pdf.text(`1 USD = ${formData.defaultExchangeRate.toFixed(2)} PHP`, 160, yPos);
+  pdf.setTextColor(0); // Reset color
   
   // Table headers with background
   pdf.setFillColor(240, 240, 240);

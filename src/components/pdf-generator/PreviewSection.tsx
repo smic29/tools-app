@@ -116,6 +116,9 @@ export function PreviewSection({
 
       {/* Items Table */}
       <div className="mt-6">
+        <div className="text-sm text-muted-foreground">
+          Exchange Rate: $1 = ₱{formData.defaultExchangeRate.toFixed(2)}
+        </div>
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b">
