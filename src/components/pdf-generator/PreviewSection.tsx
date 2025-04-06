@@ -22,6 +22,10 @@ export function PreviewSection({
   handleGeneratePDF,
   isGenerating
 }: PreviewSectionProps) {
+  const footerText = formData.documentType === 'quotation'
+    ? `Approved By: ${formData.companyAuthRep}`
+    : 'This is not valid for input tax claim';
+  
   return (
     <div className="border p-6 space-y-6 print:p-0 print:w-screen print:block print:border-none">
       {/* Header */}
@@ -158,7 +162,7 @@ export function PreviewSection({
 
       {/* Footer */}
       <div className="mt-8 text-center text-sm print:border-t">
-        <p>This is not valid for input tax claim.</p>
+        <p>{footerText}</p>
       </div>
 
       {/* Action Buttons */}

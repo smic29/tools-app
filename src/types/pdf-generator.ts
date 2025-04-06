@@ -18,6 +18,7 @@ export interface PDFFormData {
   companyLogo: string;
   companyisNonVat: boolean;
   companyTin: string;
+  companyAuthRep: string;
 
   // Document Details
   documentType: "quotation" | "invoice" | "statement_of_account";

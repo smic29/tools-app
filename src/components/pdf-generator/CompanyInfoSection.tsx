@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { PDFFormData } from "@/types/pdf-generator";
 import React from "react";
 import { Button } from "../ui/button";
-import { Building2, LockOpenIcon, Mail, MapPin, Phone } from "lucide-react";
+import { Building2, LockOpenIcon, Mail, MapPin, Phone, UserCheck } from "lucide-react";
 import Image from "next/image";
 
 interface CompanyInfoSectionProps {
@@ -27,13 +27,17 @@ export function CompanyInfoSection({
       companyEmail: "rogemae.sibulo@gmail.com",
       companyLogo: "/companyLogos/rbsibulo.png",
       companyisNonVat: true,
-      companyTin: "501-594-979-000"
+      companyTin: "501-594-979-000",
+      companyAuthRep: "Rogemae Sibulo",
     },
     "TEST": {
       companyName: "Test Company",
       companyAddress: "123 Main St, Anytown, USA",
       companyPhone: "123-456-7890",
       companyEmail: "w0D3o@example.com",
+      companyisNonVat: false,
+      companyTin: "123-456-789",
+      companyAuthRep: "John Doe",
     }
   };
 
@@ -75,6 +79,10 @@ export function CompanyInfoSection({
         <div className="flex items-center gap-2">
           <Mail className="w-4 h-4 text-gray-500" />
           <span>{formData.companyEmail}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <UserCheck className="w-4 h-4 text-gray-500" />
+          <span>{formData.companyAuthRep}</span>
         </div>
       </div>
       ) : (
