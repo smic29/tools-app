@@ -22,37 +22,34 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   pdf.setDrawColor(0);
   pdf.setLineWidth(0.5);
   pdf.rect(10, 10, 190, 277); // Outer border
-  
+
+  // Check Logo existence
+  const hasLogo = formData.companyLogo?.trim() !== '';
+
+  // Set positions
+  const logoX = 10;
+  const logoY = 10;
+  const logoWidth = 40;
+  const logoHeight = 40;
+  const textX = hasLogo ? logoX + logoWidth - 5 : 20;
+  const textY = hasLogo ? logoY + 10 : 20;
+
+  // Add logo
+  if (hasLogo) {
+    const logo = new Image();
+    logo.src = formData.companyLogo;
+    pdf.addImage(logo, 'PNG', logoX, logoY, logoWidth, logoHeight);
+  }
+
   // Add company information
   pdf.setFontSize(16);
-  pdf.text(formData.companyName, 20, 20);
+  pdf.text(formData.companyName, textX, textY);
   
   pdf.setFontSize(10);
-  pdf.text(formData.companyAddress, 20, 27);
-  pdf.text(`Phone: ${formData.companyPhone}`, 20, 32);
-  pdf.text(`Email: ${formData.companyEmail}`, 20, 37);
-  pdf.text('NON-VAT Registration', 20, 42);
-  
-  // Add document type and details
-  pdf.setFontSize(14);
-  let documentTitle = "QUOTATION";
-  if (formData.documentType === "invoice") {
-    documentTitle = "INVOICE";
-  } else if (formData.documentType === "statement_of_account") {
-    documentTitle = "STATEMENT OF ACCOUNT";
-  }
-  pdf.text(documentTitle, 150, 20, { align: 'right' });
-  
-  pdf.setFontSize(10);
-  pdf.text(`No: ${formData.documentNumber}`, 150, 27, { align: 'right' });
-  pdf.text(`Date: ${formData.documentDate}`, 150, 32, { align: 'right' });
-  if (formData.documentType === "invoice" && formData.dueDate) {
-    pdf.text(`Due Date: ${formData.dueDate}`, 150, 37, { align: 'right' });
-  }
-  
-  // Add horizontal line
-  pdf.setLineWidth(0.2);
-  pdf.line(20, 45, 190, 45);
+  pdf.text(formData.companyAddress, textX, textY + 7);
+  pdf.text(`Phone: ${formData.companyPhone}`, textX, textY + 12);
+  pdf.text(`Email: ${formData.companyEmail}`, textX, textY + 17);
+  pdf.text(`${formData.companyisNonVat ? 'NON-VAT' : 'VAT'} Reg. TIN # ${formData.companyTin}`, textX, textY + 22);
   
   // Create a box for client and document details
   pdf.setDrawColor(200, 200, 200);
@@ -61,10 +58,18 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   // Add vertical line to separate client and document details
   pdf.line(105, 50, 105, 75);
+
+  // Set Document Title
+  let documentTitle = "QUOTATION";
+  if (formData.documentType === "invoice") {
+    documentTitle = "INVOICE";
+  } else if (formData.documentType === "statement_of_account") {
+    documentTitle = "STATEMENT OF ACCOUNT";
+  }
   
   // Add client information
   pdf.setFontSize(12);
-  pdf.text('Bill To:', 25, 58);
+  pdf.text(`To :`, 25, 58);
   
   pdf.setFontSize(10);
   pdf.text(formData.clientName, 25, 65);
@@ -72,11 +77,11 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   // Add document details on the right side
   pdf.setFontSize(12);
-  pdf.text('Document Details:', 110, 58);
+  pdf.text(documentTitle, 110, 58);
   
   pdf.setFontSize(10);
-  pdf.text(`Type: ${documentTitle}`, 110, 65);
-  pdf.text(`Number: ${formData.documentNumber}`, 110, 70);
+  pdf.text(`Ref: ${formData.documentNumber}`, 110, 65);
+  pdf.text(`Date: ${formData.documentDate}`, 110, 70  );
   
   // Add horizontal line
   pdf.line(20, 80, 190, 80);
@@ -169,7 +174,7 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
     pdf.text(item.quantity.toString(), 85, yPos);
     pdf.text(item.price.toFixed(2), 105, yPos);
     pdf.text(item.currency, 125, yPos);
-    pdf.text(item.total.toFixed(2), 150, yPos);
+    pdf.text(item.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 150, yPos);
     yPos += 7;
   });
   
@@ -185,14 +190,12 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   pdf.rect(20, yPos, 170, 10, 'F');
   
   pdf.setFontSize(10);
-  pdf.text('Total (PHP):', 120, yPos + 5);
+  pdf.text('Total:', 120, yPos + 5);
   
   // Use a different approach for the Peso symbol
   // Instead of using the Unicode character, we'll use a custom approach
   pdf.setFont('helvetica', 'bold');
   pdf.text('P', 145, yPos + 5);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text('HP', 147, yPos + 5);
   
   pdf.setFont('courier'); // Use monospace font for better alignment
   pdf.text(total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 155, yPos + 5);
@@ -208,12 +211,13 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   const footerY = 260;
   pdf.setDrawColor(200, 200, 200);
   pdf.setLineWidth(0.2);
-  pdf.rect(20, footerY, 170, 15);
+  pdf.rect(20, footerY, 170, 8);
   
-  pdf.setFontSize(10);
-  pdf.text('Thank you for your business!', 105, footerY + 8, { align: 'center' });
+  pdf.setFontSize(8);
+  const lastLineText = documentTitle === 'QUOTATION' ?  `Approved by: ${formData.companyAuthRep}` : 'This is not valid for input tax claim';
+  pdf.text(lastLineText, 105, footerY + 5, { align: 'center' });
   
   // Save the PDF
-  const fileName = `${formData.documentType}-${formData.documentNumber || 'document'}.pdf`;
+  const fileName = `${formData.documentNumber || 'document'}.pdf`;
   pdf.save(fileName);
 } 
