@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import { PDFFormData } from "@/types/pdf-generator";
-import { pesoToWords } from "./numberToWords";
+import { currencyToWords } from "./numberToWords";
 
 /**
  * Generates a PDF document from the form data
@@ -209,7 +209,7 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   // Amount in words on the same line
   pdf.setFontSize(9);
-  const amountInWords = pesoToWords(total);
+  const amountInWords = currencyToWords(total);
   const wordsLines = pdf.splitTextToSize(amountInWords, 100);
   pdf.text(wordsLines, 25, yPos + 5);
   

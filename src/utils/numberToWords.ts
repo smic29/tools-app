@@ -3,6 +3,8 @@
  * Specialized for Philippine Peso amounts
  */
 
+import { CurrencyCode } from "@/types/numberToWords";
+
 /**
  * Converts a number to words in English
  * @param num The number to convert
@@ -70,28 +72,40 @@ export function numberToWords(num: number): string {
 }
 
 /**
- * Converts a Philippine Peso amount to words
- * @param amount The amount in PHP
+ * Converts an amount to currency words
+ * @param amount The amount
+ * @param currency The currency
  * @returns The amount in words with "Pesos" and "Centavos"
  */
-export function pesoToWords(amount: number): string {
+export function currencyToWords(amount: number, currency: CurrencyCode = 'php'): string {
   // Split into pesos and centavos
-  const pesos = Math.floor(amount);
-  const centavos = Math.round((amount - pesos) * 100);
-  
+  const whole = Math.floor(amount);
+  const decimal = Math.round((amount - whole) * 100);
+ 
   let result = '';
+  const currencyLabel = currency === 'php' ? 'Pesos' : 'Dollars';
+  const centLabel = currency === 'php' ? 'Centavos' : 'Cents';
   
-  // Convert pesos to words
-  if (pesos > 0) {
-    result += numberToWords(pesos) + ' Pesos';
+  if (whole > 0) {
+    result += numberToWords(whole) + ` ${currencyLabel}`;
   } else {
-    result += 'Zero Pesos';
+    result += `Zero ${currencyLabel}`;
   }
   
   // Add centavos if any
-  if (centavos > 0) {
-    result += ' and ' + numberToWords(centavos) + ' Centavos';
+  if (decimal > 0) {
+    result += ' and ' + numberToWords(decimal) + ` ${centLabel}`;
   }
   
   return result;
 } 
+
+export function numberToWordsWithFraction(amount: number): string {
+  const whole = Math.floor(amount);
+  const decimal = Math.round((amount - whole) * 100);
+
+  const words = numberToWords(whole);
+  const fraction = decimal > 0 ? ` and ${decimal.toString().padStart(2, '0')}/100` : '';
+
+  return `${words}${fraction}`;
+}
