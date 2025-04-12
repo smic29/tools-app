@@ -34,7 +34,9 @@ export function SettingsSidebar({
 
   return (
     <div 
-      className={`fixed top-0 right-0 h-full transition-all duration-300 ${isOpen ? 'w-96' : 'w-12'} z-10`}
+      className={`fixed top-0 right-0 h-full z-10 transition-all duration-300 ${
+        isOpen ? 'w-96 sm:w-96 w-full' : 'w-12 sm:w-12 w-0'
+      }`}
     >
       {isOpen ? (
         <div className="h-full bg-background border-l shadow-md flex flex-col">
@@ -170,12 +172,34 @@ export function SettingsSidebar({
           </div>
         </div>
       ) : (
-        <div 
-          className="h-full bg-primary/10 hover:bg-primary/20 border-l border-primary/20 cursor-pointer flex items-center justify-center transition-colors duration-200"
-          onClick={() => setIsOpen(true)}
-        >
-          <Settings className="h-5 w-5 text-primary" />
-        </div>
+        <>
+          {/* Desktop collapsed sidebar strip */}
+          <div 
+            className="h-full hidden sm:flex bg-primary/10 hover:bg-primary/20 border-l border-primary/20 cursor-pointer items-center justify-center transition-colors duration-200 relative"
+            onClick={() => setIsOpen(true)}
+          >
+            <div className="relative">
+              <Settings className="h-5 w-5 text-primary" />
+              {formData.companyName === '' && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
+              )}
+            </div>
+          </div>
+
+          {/* Mobile floating button */}
+          <div className="fixed top-1/2 right-2 sm:hidden z-50 transform -translate-y-1/2">
+            <Button
+              variant="outline"
+              className="rounded-full p-3 shadow-lg bg-primary text-white relative"
+              onClick={() => setIsOpen(true)}
+            >
+              <Settings className="h-5 w-5" />
+              {formData.companyName === '' && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
+              )}
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );
