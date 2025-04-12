@@ -5,10 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { MAX_VALUE } from "@/constants/numbersToWords";
 import useNumberToWords from "@/hooks/useNumberToWords";
 import Link from "next/link";
-
-export const MAX_VALUE = 999999999999;
 
 export default function NumberToWords() {
   const {

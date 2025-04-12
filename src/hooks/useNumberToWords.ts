@@ -1,4 +1,4 @@
-import { MAX_VALUE } from "@/app/tools/number-to-words/page";
+import { MAX_VALUE } from "@/constants/numbersToWords";
 import { currencyToWords, numberToWordsWithFraction } from "@/utils/numberToWords";
 import { useState } from "react";
 
