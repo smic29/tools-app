@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PDFFormData } from '@/types/pdf-generator';
-import { pesoToWords } from '@/utils/numberToWords';
+import { currencyToWords } from '@/utils/numberToWords';
 
 // Define a type for the item structure
 interface ItemData {
@@ -343,7 +343,7 @@ export function usePDFForm() {
   };
 
   const getAmountInWords = () => {
-    return pesoToWords(calculateTotal());
+    return currencyToWords(calculateTotal());
   };
 
   return {
