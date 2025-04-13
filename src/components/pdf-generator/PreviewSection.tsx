@@ -32,13 +32,13 @@ export function PreviewSection({
       <div className="flex flex-col md:flex-row md:items-start print:flex-row print:items-start print:gap-4">
         {/* Logo Section */}
         <div className="flex justify-center md:justify-start md:mr-4 mb-4 md:mb-0 print:mb-0 print:mr-4">
-          <Image
+          {formData.companyLogo && <Image
             src={formData.companyLogo}
             alt="Company Logo"
             width={170}
             height={170}
             className="print:w-[150px] print:h-auto"
-          />
+          />}
         </div>
 
         {/* Company Info */}
