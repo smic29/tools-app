@@ -29,27 +29,37 @@ export function PreviewSection({
   return (
     <div className="border p-6 space-y-6 print:p-0 print:w-screen print:block print:border-none">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center">
-          <Image src={formData.companyLogo} alt="Company Logo" width={170} height={170} />
-          <div>
-            <h2 className="text-2xl font-bold">{formData.companyName}</h2>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-gray-500" />
-              <span>{formData.companyAddress}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-gray-500" />
-              <span>{formData.companyPhone}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-gray-500" />
-              <span>{formData.companyEmail}</span>
-            </div>
-            <p className="text-sm">{formData.companyisNonVat ? 'NON-VAT' : 'VAT'} Reg. TIN # {formData.companyTin}</p>
-          </div>
+      <div className="flex flex-col md:flex-row md:items-start print:flex-row print:items-start print:gap-4">
+        {/* Logo Section */}
+        <div className="flex justify-center md:justify-start md:mr-4 mb-4 md:mb-0 print:mb-0 print:mr-4">
+          {formData.companyLogo && <Image
+            src={formData.companyLogo}
+            alt="Company Logo"
+            width={170}
+            height={170}
+            className="print:w-[150px] print:h-auto"
+          />}
         </div>
-        
+
+        {/* Company Info */}
+        <div className="text-center md:text-left space-y-1 print:text-left">
+          <h2 className="text-2xl font-bold">{formData.companyName}</h2>
+          <div className="flex items-center justify-center md:justify-start print:justify-start gap-2">
+            <MapPin className="w-4 h-4 text-gray-500" />
+            <span>{formData.companyAddress}</span>
+          </div>
+          <div className="flex items-center justify-center md:justify-start print:justify-start gap-2">
+            <Phone className="w-4 h-4 text-gray-500" />
+            <span>{formData.companyPhone}</span>
+          </div>
+          <div className="flex items-center justify-center md:justify-start print:justify-start gap-2">
+            <Mail className="w-4 h-4 text-gray-500" />
+            <span>{formData.companyEmail}</span>
+          </div>
+          <p className="text-sm">
+            {formData.companyisNonVat ? "NON-VAT" : "VAT"} Reg. TIN # {formData.companyTin}
+          </p>
+        </div>
       </div>
 
       {/* Document Type */}
@@ -119,48 +129,50 @@ export function PreviewSection({
         <div className="text-sm text-muted-foreground">
           Exchange Rate: $1 = ₱{formData.defaultExchangeRate.toFixed(2)}
         </div>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left py-2">Description</th>
-              <th className="text-center py-2">Quantity</th>
-              <th className="text-center py-2">Unit Price</th>
-              <th className="text-center py-2">Currency</th>
-              <th className="text-center py-2">Total (PHP)</th>
-            </tr>
-          </thead>
-          <tbody className="print:border-b-2">
-            {formData.items.map((item, index) => (
-              <tr key={index} className="border-b">
-                <td className="py-2">{item.description}</td>
-                <td className="text-center">{item.quantity}</td>
-                <td className="text-center">{item.price.toFixed(2)}</td>
-                <td className="text-center">{item.currency}</td>
-                <td className="text-center font-mono">
+        <div className="overflow-x-auto border border-muted rounded-md print:border-0 p-1">
+          <table className="min-w-[600px] w-full border-collapse">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-2">Description</th>
+                <th className="text-center py-2">Quantity</th>
+                <th className="text-center py-2">Unit Price</th>
+                <th className="text-center py-2">Currency</th>
+                <th className="text-center py-2">Total (PHP)</th>
+              </tr>
+            </thead>
+            <tbody className="print:border-b-2">
+              {formData.items.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="py-2">{item.description}</td>
+                  <td className="text-center">{item.quantity}</td>
+                  <td className="text-center">{item.price.toFixed(2)}</td>
+                  <td className="text-center">{item.currency}</td>
+                  <td className="text-center font-mono">
+                    <div className="flex justify-center">
+                      <span className="text-muted-foreground mr-1">₱</span>
+                      <span>{item.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t">
+                <td colSpan={4} className="py-2">
+                  <div className="text-sm uppercase">
+                    {getAmountInWords()}
+                  </div>
+                </td>
+                <td className="text-center py-2 font-mono">
                   <div className="flex justify-center">
                     <span className="text-muted-foreground mr-1">₱</span>
-                    <span>{item.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="print:border-b print:font-bold">{calculateTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                 </td>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="border-t">
-              <td colSpan={4} className="py-2">
-                <div className="text-sm uppercase">
-                  {getAmountInWords()}
-                </div>
-              </td>
-              <td className="text-center py-2 font-mono">
-                <div className="flex justify-center">
-                  <span className="text-muted-foreground mr-1">₱</span>
-                  <span className="print:border-b print:font-bold">{calculateTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                </div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+            </tfoot>
+          </table>
+        </div>
       </div>
 
       {/* Footer */}
@@ -169,7 +181,7 @@ export function PreviewSection({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-2 mt-6 print:hidden">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-2 mt-6 print:hidden">
         <Button type="button" variant="outline" onClick={handleBack}>
           Back to Form
         </Button>
@@ -184,6 +196,7 @@ export function PreviewSection({
           {isGenerating ? "Generating..." : "Generate PDF"}
         </Button>
       </div>
+
     </div>
   );
 } 

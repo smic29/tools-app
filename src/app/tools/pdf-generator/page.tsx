@@ -92,9 +92,9 @@ export default function PDFGenerator() {
       </header>
 
       {/* Main Content */}
-      <main className={`container mx-auto px-4 py-8 print:p-0 print:m-0 print:w-full transition-all duration-300 ${!showPreview && sidebarOpen ? 'pr-96' : !showPreview ? 'pr-12' : ''}`}>
+      <main className={`container mx-auto px-4 py-8 print:p-0 print:m-0 print:w-full transition-all duration-300 ${!showPreview && sidebarOpen ? 'pr-96' : !showPreview ? 'sm:pr-12' : ''}`}>
         {!showPreview ? (
-          <Card className="max-w-5xl mx-auto">
+          <Card className="w-full sm:max-w-4xl md:max-w-5xl mx-auto">
             <CardHeader>
               <CardTitle>Document Form</CardTitle>
               <CardDescription>
@@ -104,11 +104,11 @@ export default function PDFGenerator() {
             <CardContent>
               <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
                 {/* Action Buttons */}
-                <div className="flex justify-between gap-2">
+                <div className="flex flex-col sm:flex-row justify-between gap-2">
                   <Button type="button" variant="outline" onClick={clearForm}>
                     Clear Form
                   </Button>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button type="button" variant="outline" onClick={handlePreview}>
                       Preview
                     </Button>
