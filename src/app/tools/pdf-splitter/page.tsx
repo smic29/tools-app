@@ -7,18 +7,30 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { toast } from "sonner"
+import PagePreview from "@/components/pdf-splitter/PagePreview"
 
 export default function SplitPDFPage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [pageRanges, setPageRanges] = useState("")
+  const [totalPages, setTotalPages] = useState<number>(0)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
     if (file && file.type === "application/pdf") {
-      setPdfFile(file)
-      toast.success("File uploaded successfully!")
+      try {
+        const buffer = await file.arrayBuffer()
+        const pdfDoc = await PDFDocument.load(buffer)
+        setTotalPages(pdfDoc.getPageCount())
+        setPdfFile(file)
+        toast.success("File uploaded successfully!")
+      } catch {
+        toast.error("Failed to load PDF")
+        setPdfFile(null)
+        setTotalPages(0)
+      }
     } else {
       setPdfFile(null)
+      setTotalPages(0)
       toast.error("Please upload a valid PDF file.")
     }
   }
@@ -33,8 +45,8 @@ export default function SplitPDFPage() {
     const pdfDoc = await PDFDocument.load(buffer)
     const totalPages = pdfDoc.getPageCount()
 
-    if (totalPages > 20) {
-      toast.error("PDF is too large (max 20 pages allowed).")
+    if (totalPages > 200) {
+      toast.error("PDF is too large (max 200 pages allowed).")
       return
     }
 
@@ -137,6 +149,8 @@ export default function SplitPDFPage() {
               value={pageRanges}
               onChange={(e) => setPageRanges(e.target.value)}
             />
+
+            <PagePreview totalPages={totalPages} currentRanges={pageRanges} />
 
             <Button onClick={handleSplit} disabled={!pdfFile || !pageRanges}>
               Split PDF
