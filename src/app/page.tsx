@@ -23,10 +23,10 @@ export default function Home() {
       href: "#",
     },
     {
-      title: "Task Tracker",
-      description: "Organize and track office tasks and projects",
-      status: "Coming Soon",
-      href: "#",
+      title: "PDF Splitter",
+      description: "Split a multi-page PDF into separate files",
+      status: "Available",
+      href: "/tools/pdf-splitter",
     },
   ];
 
