@@ -209,11 +209,12 @@ export function usePDFForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, forceNumber?: boolean) => {
     const { name, value } = e.target;
+
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: forceNumber ? Number(value) : value
     }));
     
     // Clear error when field is edited

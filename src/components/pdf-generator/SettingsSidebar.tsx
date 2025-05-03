@@ -14,7 +14,7 @@ import {
 interface SettingsSidebarProps {
   formData: PDFFormData;
   errors: Record<string, string>;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, forceNumber?: boolean) => void;
   updateDefaultExchangeRate: (rate: number) => void;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -149,7 +149,7 @@ export function SettingsSidebar({
                           type="number"
                           name="defaultExchangeRate"
                           value={formData.defaultExchangeRate}
-                          onChange={handleInputChange}
+                          onChange={(e) => handleInputChange(e, true)}
                           step="0.01"
                           min="0"
                           className="w-full p-2 border rounded-md"
