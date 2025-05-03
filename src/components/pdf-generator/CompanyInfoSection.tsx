@@ -5,6 +5,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import { Building2, LockOpenIcon, Mail, MapPin, Phone, UserCheck } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface CompanyInfoSectionProps {
   formData: PDFFormData;
@@ -19,6 +20,8 @@ export function CompanyInfoSection({
   const [invalidKey, setInvalidKey] = React.useState(false);
   
   const defaultInputClass = "w-full mt-2 p-2 border rounded-md";
+
+  // TODO: Remove this once we have a backend.
   const clientDatabase: Record<string, Partial<PDFFormData>> = {
     "RBSIBULO": { 
       companyName: "RBSibulo Logistics Services",
@@ -42,11 +45,28 @@ export function CompanyInfoSection({
   };
 
   const handleUnlockClick = () => {
-    const companyData = clientDatabase[companyKeyInput] || clientDatabase.TEST;
+    const normalizedKey = companyKeyInput.toUpperCase().trim();
+    const companyData = clientDatabase[normalizedKey];
 
+    if (!companyData) {
+      setInvalidKey(true); // TODO: fix at some point since this doesn't seem to work.
+      setCompanyKeyInput("");
+      toast.error("Invalid company key. Use 'test' for a demo.");
+      return;
+    }
+
+    setInvalidKey(false);
     handleCompanyKeyInput(companyData);
+  }
 
-    setInvalidKey(companyKeyInput !== "" && !clientDatabase[companyKeyInput]);
+  const handleCompanyKeyInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCompanyKeyInput(e.target.value);
+  }
+
+  const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleUnlockClick();
+    }
   }
 
   return (
@@ -93,7 +113,8 @@ export function CompanyInfoSection({
               id="companyKey" 
               name="companyKey"
               value={companyKeyInput}
-              onChange={(e) => setCompanyKeyInput(e.target.value)}
+              onChange={handleCompanyKeyInputChange}
+              onKeyDown={handleEnterKeyDown}
               placeholder="Enter company key" 
               className={invalidKey ? `${defaultInputClass} border-red-500` : defaultInputClass}
             />
