@@ -66,7 +66,7 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   // Set Document Title
   let documentTitle = "QUOTATION";
   if (formData.documentType === "invoice") {
-    documentTitle = "INVOICE";
+    documentTitle = "BILLING INVOICE";
   } else if (formData.documentType === "statement_of_account") {
     documentTitle = "STATEMENT OF ACCOUNT";
   }
@@ -154,8 +154,38 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   // Add items table
   pdf.setFontSize(12);
-  pdf.text('Items', 20, yPos);
-
+  
+  // Add the "cutting through" text effect only for invoices and statements
+  if (formData.documentType !== 'quotation') {
+    const billingText = "We are billing you for the following";
+    pdf.setFontSize(10); // Make text smaller
+    const textWidth = pdf.getTextWidth(billingText);
+    const billingTextX = (210 - textWidth) / 2; // Center the text (A4 width is 210mm)
+    
+    // Save the current graphics state
+    pdf.saveGraphicsState();
+    
+    // Draw the line with a gap for text
+    pdf.setDrawColor(200, 200, 200);
+    pdf.setLineWidth(0.2);
+    pdf.line(20, yPos, billingTextX - 5, yPos); // Left part of the line
+    pdf.line(billingTextX + textWidth + 5, yPos, 190, yPos); // Right part of the line
+    
+    // Add white background for text
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(billingTextX - 5, yPos - 3, textWidth + 10, 6, 'F'); // Reduced height of background
+    
+    // Add the text
+    pdf.setTextColor(100, 100, 100); // Make text color more subtle
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(billingText, billingTextX, yPos + 1);
+    
+    // Restore the graphics state
+    pdf.restoreGraphicsState();
+    
+    yPos += 8; // Reduced spacing after the line
+  }
+  
   // Add Exchange Rate Reference
   pdf.setFontSize(8);
   pdf.text('ER: ', 155, yPos);
