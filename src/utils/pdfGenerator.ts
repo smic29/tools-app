@@ -46,18 +46,22 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   pdf.text(formData.companyName, textX, textY);
   
   pdf.setFontSize(10);
-  pdf.text(formData.companyAddress, textX, textY + 7);
-  pdf.text(`Phone: ${formData.companyPhone}`, textX, textY + 12);
-  pdf.text(`Email: ${formData.companyEmail}`, textX, textY + 17);
-  pdf.text(`${formData.companyisNonVat ? 'NON-VAT' : 'VAT'} Reg. TIN # ${formData.companyTin}`, textX, textY + 22);
+  const companyAddressLines = pdf.splitTextToSize(formData.companyAddress, 80);
+  pdf.text(companyAddressLines, textX, textY + 7);
+  pdf.text(`Phone: ${formData.companyPhone}`, textX, textY + 7 + (companyAddressLines.length * 5));
+  pdf.text(`Email: ${formData.companyEmail}`, textX, textY + 12 + (companyAddressLines.length * 5));
+  pdf.text(`${formData.companyisNonVat ? 'NON-VAT' : 'VAT'} Reg. TIN # ${formData.companyTin}`, textX, textY + 17 + (companyAddressLines.length * 5));
+  
+  // Calculate box height based on content
+  const companyInfoHeight = 25 + (companyAddressLines.length * 5);
   
   // Create a box for client and document details
   pdf.setDrawColor(200, 200, 200);
   pdf.setLineWidth(0.2);
-  pdf.rect(20, 50, 170, 25);
+  pdf.rect(20, 50, 170, companyInfoHeight);
   
   // Add vertical line to separate client and document details
-  pdf.line(105, 50, 105, 75);
+  pdf.line(105, 50, 105, 50 + companyInfoHeight);
 
   // Set Document Title
   let documentTitle = "QUOTATION";
@@ -73,7 +77,8 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   pdf.setFontSize(10);
   pdf.text(formData.clientName, 25, 65);
-  pdf.text(formData.clientAddress, 25, 70);
+  const clientAddressLines = pdf.splitTextToSize(formData.clientAddress, 70);
+  pdf.text(clientAddressLines, 25, 70);
   
   // Add document details on the right side
   pdf.setFontSize(12);
@@ -81,13 +86,13 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   pdf.setFontSize(10);
   pdf.text(`Ref: ${formData.documentNumber}`, 110, 65);
-  pdf.text(`Date: ${formData.documentDate}`, 110, 70  );
+  pdf.text(`Date: ${formData.documentDate}`, 110, 70);
   
   // Add horizontal line
-  pdf.line(20, 80, 190, 80);
+  pdf.line(20, 50 + companyInfoHeight, 190, 50 + companyInfoHeight);
   
   // Variable to track vertical position
-  let yPos = 90;
+  let yPos = 50 + companyInfoHeight + 10;
   
   // Add cargo details if available
   if (formData.portOfDischarge || formData.portOfLoading || formData.vesselVoyage || 
