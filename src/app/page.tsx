@@ -71,23 +71,6 @@ export default function Home() {
           ))}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t mt-auto">
-        <div className="container mx-auto px-4 py-6">
-          <p className="text-center text-sm text-muted-foreground">
-            © 2025 Tools App | Created by{" "}
-            <a 
-              href="https://github.com/smic29" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              Spicy
-            </a>
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
