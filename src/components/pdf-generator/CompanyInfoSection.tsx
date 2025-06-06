@@ -108,16 +108,20 @@ export function CompanyInfoSection({
       ) : (
         <div className="flex gap-2 items-end">
           <div className="flex-1">
-            <Label htmlFor="companyKey">Company Key</Label>
-            <Input 
-              id="companyKey" 
-              name="companyKey"
-              value={companyKeyInput}
-              onChange={handleCompanyKeyInputChange}
-              onKeyDown={handleEnterKeyDown}
-              placeholder="Enter company key" 
-              className={invalidKey ? `${defaultInputClass} border-red-500` : defaultInputClass}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="companyKey">Company Key</Label>
+              <Input
+                id="companyKey"
+                value={companyKeyInput}
+                onChange={handleCompanyKeyInputChange}
+                onKeyDown={handleEnterKeyDown}
+                placeholder="Enter your company key"
+                className={invalidKey ? `${defaultInputClass} border-red-500` : defaultInputClass}
+              />
+              <p className="text-sm text-muted-foreground">
+                This is a premium feature. Contact us to add your company to our system.
+              </p>
+            </div>
           </div>
           <Button type="button" onClick={handleUnlockClick}>
             <LockOpenIcon className="w-5 h-5" />
