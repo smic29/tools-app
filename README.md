@@ -7,7 +7,24 @@ A collection of useful office productivity tools built with Next.js, TypeScript,
 ### Available Tools
 
 - **PDF Generator**: Create professional billing and quotation PDFs with customizable templates
+  - Generate invoices, quotations, and statements of account
+  - Customize company information and document settings
+  - Add multiple items with automatic calculations
+  - Preview before generating
+  - Support for cargo details and job descriptions
+  - Automatic text wrapping for long addresses
+
 - **Number to Words**: Convert numerical values into words for official documents and checks
+  - Support for Philippine Peso and US Dollars
+  - Real-time conversion
+  - Maximum value protection
+  - Clean and professional output
+
+- **PDF Splitter**: Split PDF documents into multiple files
+  - Split by page ranges
+  - Preview page ranges
+  - Support for large PDFs (up to 200 pages)
+  - Multiple output formats
 
 ### Coming Soon
 
@@ -20,6 +37,8 @@ A collection of useful office productivity tools built with Next.js, TypeScript,
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui
+- **PDF Generation**: jsPDF
+- **PDF Manipulation**: pdf-lib
 - **Deployment**: Vercel (recommended)
 
 ## Getting Started
@@ -62,23 +81,29 @@ tools-app/
 │   ├── app/             # Next.js app router
 │   │   ├── tools/       # Tool pages
 │   │   │   ├── pdf-generator/     # PDF Generator tool
-│   │   │   └── number-to-words/   # Number to Words tool
+│   │   │   ├── number-to-words/   # Number to Words tool
+│   │   │   └── pdf-splitter/      # PDF Splitter tool
 │   │   ├── layout.tsx   # Root layout
 │   │   └── page.tsx     # Home page
 │   ├── components/      # Reusable components
-│   │   └── ui/          # shadcn/ui components
-│   └── lib/             # Utility functions
+│   │   ├── ui/          # shadcn/ui components
+│   │   ├── pdf-generator/  # PDF Generator components
+│   │   ├── pdf-splitter/   # PDF Splitter components
+│   │   └── number-to-words/ # Number to Words components
+│   ├── hooks/           # Custom React hooks
+│   ├── utils/           # Utility functions
+│   └── types/           # TypeScript type definitions
 ├── tailwind.config.js   # Tailwind CSS configuration
 └── package.json         # Project dependencies
 ```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request. For more details, see our [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
