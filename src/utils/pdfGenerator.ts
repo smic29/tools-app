@@ -46,23 +46,27 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   pdf.text(formData.companyName, textX, textY);
   
   pdf.setFontSize(10);
-  pdf.text(formData.companyAddress, textX, textY + 7);
-  pdf.text(`Phone: ${formData.companyPhone}`, textX, textY + 12);
-  pdf.text(`Email: ${formData.companyEmail}`, textX, textY + 17);
-  pdf.text(`${formData.companyisNonVat ? 'NON-VAT' : 'VAT'} Reg. TIN # ${formData.companyTin}`, textX, textY + 22);
+  const companyAddressLines = pdf.splitTextToSize(formData.companyAddress, 80);
+  pdf.text(companyAddressLines, textX, textY + 7);
+  pdf.text(`Phone: ${formData.companyPhone}`, textX, textY + 7 + (companyAddressLines.length * 5));
+  pdf.text(`Email: ${formData.companyEmail}`, textX, textY + 12 + (companyAddressLines.length * 5));
+  pdf.text(`${formData.companyisNonVat ? 'NON-VAT' : 'VAT'} Reg. TIN # ${formData.companyTin}`, textX, textY + 17 + (companyAddressLines.length * 5));
+  
+  // Calculate box height based on content
+  const companyInfoHeight = 25 + (companyAddressLines.length * 5);
   
   // Create a box for client and document details
   pdf.setDrawColor(200, 200, 200);
   pdf.setLineWidth(0.2);
-  pdf.rect(20, 50, 170, 25);
+  pdf.rect(20, 50, 170, companyInfoHeight);
   
   // Add vertical line to separate client and document details
-  pdf.line(105, 50, 105, 75);
+  pdf.line(105, 50, 105, 50 + companyInfoHeight);
 
   // Set Document Title
   let documentTitle = "QUOTATION";
   if (formData.documentType === "invoice") {
-    documentTitle = "INVOICE";
+    documentTitle = "BILLING INVOICE";
   } else if (formData.documentType === "statement_of_account") {
     documentTitle = "STATEMENT OF ACCOUNT";
   }
@@ -73,7 +77,8 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   pdf.setFontSize(10);
   pdf.text(formData.clientName, 25, 65);
-  pdf.text(formData.clientAddress, 25, 70);
+  const clientAddressLines = pdf.splitTextToSize(formData.clientAddress, 70);
+  pdf.text(clientAddressLines, 25, 70);
   
   // Add document details on the right side
   pdf.setFontSize(12);
@@ -81,13 +86,13 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   pdf.setFontSize(10);
   pdf.text(`Ref: ${formData.documentNumber}`, 110, 65);
-  pdf.text(`Date: ${formData.documentDate}`, 110, 70  );
+  pdf.text(`Date: ${formData.documentDate}`, 110, 70);
   
   // Add horizontal line
-  pdf.line(20, 80, 190, 80);
+  pdf.line(20, 50 + companyInfoHeight, 190, 50 + companyInfoHeight);
   
   // Variable to track vertical position
-  let yPos = 90;
+  let yPos = 50 + companyInfoHeight + 10;
   
   // Add cargo details if available
   if (formData.portOfDischarge || formData.portOfLoading || formData.vesselVoyage || 
@@ -149,8 +154,38 @@ export async function generatePDF(formData: PDFFormData): Promise<void> {
   
   // Add items table
   pdf.setFontSize(12);
-  pdf.text('Items', 20, yPos);
-
+  
+  // Add the "cutting through" text effect only for invoices and statements
+  if (formData.documentType !== 'quotation') {
+    const billingText = "We are billing you for the following";
+    pdf.setFontSize(10); // Make text smaller
+    const textWidth = pdf.getTextWidth(billingText);
+    const billingTextX = (210 - textWidth) / 2; // Center the text (A4 width is 210mm)
+    
+    // Save the current graphics state
+    pdf.saveGraphicsState();
+    
+    // Draw the line with a gap for text
+    pdf.setDrawColor(200, 200, 200);
+    pdf.setLineWidth(0.2);
+    pdf.line(20, yPos, billingTextX - 5, yPos); // Left part of the line
+    pdf.line(billingTextX + textWidth + 5, yPos, 190, yPos); // Right part of the line
+    
+    // Add white background for text
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(billingTextX - 5, yPos - 3, textWidth + 10, 6, 'F'); // Reduced height of background
+    
+    // Add the text
+    pdf.setTextColor(100, 100, 100); // Make text color more subtle
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(billingText, billingTextX, yPos + 1);
+    
+    // Restore the graphics state
+    pdf.restoreGraphicsState();
+    
+    yPos += 8; // Reduced spacing after the line
+  }
+  
   // Add Exchange Rate Reference
   pdf.setFontSize(8);
   pdf.text('ER: ', 155, yPos);

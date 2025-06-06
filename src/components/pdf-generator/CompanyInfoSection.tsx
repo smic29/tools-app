@@ -24,7 +24,7 @@ export function CompanyInfoSection({
   // TODO: Remove this once we have a backend.
   const clientDatabase: Record<string, Partial<PDFFormData>> = {
     "RBSIBULO": { 
-      companyName: "RBSibulo Logistics Services",
+      companyName: "RBSIBULO Logistics Services",
       companyAddress: "#8 road 5C cor. 9th St., UPS V, Brgy. San Isidro, Parañaque 1700",
       companyPhone: "0912 980 1532",
       companyEmail: "rogemae.sibulo@gmail.com",

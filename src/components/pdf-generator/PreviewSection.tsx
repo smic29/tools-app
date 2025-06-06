@@ -45,8 +45,8 @@ export function PreviewSection({
         <div className="text-center md:text-left space-y-1 print:text-left">
           <h2 className="text-2xl font-bold">{formData.companyName}</h2>
           <div className="flex items-center justify-center md:justify-start print:justify-start gap-2">
-            <MapPin className="w-4 h-4 text-gray-500" />
-            <span>{formData.companyAddress}</span>
+            <MapPin className="w-4 h-4 text-gray-500 flex-shrink-0" />
+            <span className="break-words">{formData.companyAddress}</span>
           </div>
           <div className="flex items-center justify-center md:justify-start print:justify-start gap-2">
             <Phone className="w-4 h-4 text-gray-500" />
@@ -76,7 +76,7 @@ export function PreviewSection({
       <div className="flex items-center justify-between">
         <div>
           <p>{formData.clientName}</p>
-          <p>{formData.clientAddress}</p>
+          <p className="break-words">{formData.clientAddress}</p>
         </div>
         <div className="text-left">
           <p className="text-sm">Ref: {formData.documentNumber}</p>
